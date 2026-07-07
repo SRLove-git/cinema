@@ -60,11 +60,11 @@ public class MoviePanel extends JPanel {
         movieTable = new JTable(tableModel);
         movieTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         movieTable.getTableHeader().setReorderingAllowed(false);
-        // 双击行编辑
+        // 双击行编辑（顾客不启用）
         movieTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (e.getClickCount() == 2) {
+                if (e.getClickCount() == 2 && !Constants.ROLE_CUSTOMER.equals(user.getRole())) {
                     int selectedRow = movieTable.getSelectedRow();
                     if (selectedRow >= 0) {
                         editMovie(selectedRow);

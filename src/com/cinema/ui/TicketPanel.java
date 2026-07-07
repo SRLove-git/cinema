@@ -43,6 +43,7 @@ public class TicketPanel extends JPanel {
     private final JPanel seatGridPanel = new JPanel();
     private final JLabel selectedInfoLabel = new JLabel("已选: 0 座 | 总价: ¥0.00");
     private final JButton purchaseButton = new JButton("购票");
+    private final JButton refreshButton = new JButton("刷新");
 
     // 状态
     private Schedule selectedSchedule;
@@ -95,6 +96,11 @@ public class TicketPanel extends JPanel {
         purchaseButton.setEnabled(false);
         purchaseButton.setFont(new Font("微软雅黑", Font.BOLD, 14));
         purchaseButton.addActionListener(e -> purchase());
+
+        refreshButton.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        refreshButton.addActionListener(e -> refresh());
+
+        bottomPanel.add(refreshButton);
         bottomPanel.add(selectedInfoLabel);
         bottomPanel.add(Box.createHorizontalStrut(20));
         bottomPanel.add(purchaseButton);
@@ -153,6 +159,11 @@ public class TicketPanel extends JPanel {
 
     /** 加载某场次的所有座位 */
     private void loadSeats(int scheduleId) {
+        // 清除旧数据
+        seatGridPanel.removeAll();
+        seatButtonMap.clear();
+        selectedSeatIdSet.clear();
+
         allSeats = ticketService.getAllSeats(scheduleId);
         if (allSeats == null || allSeats.isEmpty()) {
             seatGridPanel.setLayout(new BorderLayout());
@@ -204,6 +215,7 @@ public class TicketPanel extends JPanel {
 
         seatGridPanel.revalidate();
         seatGridPanel.repaint();
+        updateSelectedInfo();
     }
 
     /** 点击座位切换选中状态 */
@@ -272,6 +284,30 @@ public class TicketPanel extends JPanel {
                     "购票失败，请重试",
                     "购票失败",
                     JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /** 刷新：重新加载电影列表和当前场次座位 */
+    private void refresh() {
+        // 记住当前选中的场次和电影
+        Movie selectedMovie = movieList.getSelectedValue();
+        int scheduleId = selectedSchedule != null ? selectedSchedule.getId() : -1;
+
+        loadMovies();
+
+        // 恢复选中状态
+        if (selectedMovie != null) {
+            for (int i = 0; i < movieListModel.getSize(); i++) {
+                if (movieListModel.getElementAt(i).getId().equals(selectedMovie.getId())) {
+                    movieList.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
+        // 刷新座位
+        if (scheduleId > 0) {
+            loadSeats(scheduleId);
         }
     }
 

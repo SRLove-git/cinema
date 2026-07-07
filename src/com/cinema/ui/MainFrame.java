@@ -20,7 +20,7 @@ public class MainFrame extends JFrame {
         // 窗口基本设置
         setTitle("影院票务管理系统");
         setSize(1200, 800);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null); // 居中显示
 
         // 使用 BorderLayout 布局
@@ -67,7 +67,7 @@ public class MainFrame extends JFrame {
         titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 0));
         topPanel.add(titleLabel, BorderLayout.WEST);
 
-        // 用户信息
+        // 用户信息 + 退出按钮
         String roleText;
         switch (user.getRole()) {
             case "admin": roleText = "管理员"; break;
@@ -78,8 +78,22 @@ public class MainFrame extends JFrame {
         JLabel userLabel = new JLabel("当前用户：" + user.getRealName() + "（" + roleText + "）");
         userLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
         userLabel.setForeground(Color.WHITE);
-        userLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 20));
-        topPanel.add(userLabel, BorderLayout.EAST);
+
+        JButton logoutButton = new JButton("退出登录");
+        logoutButton.setFont(new Font("微软雅黑", Font.PLAIN, 13));
+        logoutButton.setForeground(Color.WHITE);
+        logoutButton.setBackground(new Color(200, 50, 50));
+        logoutButton.setOpaque(true);
+        logoutButton.setBorderPainted(false);
+        logoutButton.setFocusPainted(false);
+        logoutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        logoutButton.addActionListener(e -> doLogout());
+
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12));
+        rightPanel.setOpaque(false);
+        rightPanel.add(userLabel);
+        rightPanel.add(logoutButton);
+        topPanel.add(rightPanel, BorderLayout.EAST);
 
         return topPanel;
     }
@@ -100,6 +114,19 @@ public class MainFrame extends JFrame {
         // 仅管理员可见
         if ("admin".equals(user.getRole())) {
             tabbedPane.addTab("用户管理", new UserPanel(user));
+        }
+    }
+
+    /**
+     * 退出登录，返回登录界面
+     */
+    private void doLogout() {
+        int option = JOptionPane.showConfirmDialog(this,
+                "确定要退出登录吗？", "退出登录",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (option == JOptionPane.YES_OPTION) {
+            this.dispose();
+            EventQueue.invokeLater(() -> new LoginFrame().setVisible(true));
         }
     }
 }
